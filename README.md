@@ -17,6 +17,7 @@
 11. check if a string contains only digits
 12. Give first non repeating character in a string
 13. Check if a string starts with a prefix or a suffix
+14. Reverse list inplace
 
 ---
 
