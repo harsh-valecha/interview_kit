@@ -1,17 +1,17 @@
 # Working with JSON Files in Python
 
-JSON (JavaScript Object Notation) is a text format commonly used for configuration files, APIs, data exchange, and storage of structured data.
+JSON (JavaScript Object Notation) is a lightweight format for storing and exchanging structured data. Python provides built-in support through the `json` module.
 
-Python includes the built-in `json` module, so no installation is required.
+---
 
 ## 1. JSON Fundamentals
 
-JSON supports these data types:
+JSON supports:
 
-| JSON | Python |
+| JSON type | Python type |
 |---|---|
-| Object | `dict` |
-| Array | `list` |
+| Object `{}` | `dict` |
+| Array `[]` | `list` |
 | String | `str` |
 | Number | `int` or `float` |
 | `true` / `false` | `True` / `False` |
@@ -21,31 +21,30 @@ Example JSON:
 
 ```json
 {
-  "name": "Ada",
-  "age": 36,
-  "is_active": true,
-  "skills": ["Python", "Math"],
-  "address": null
+  "name": "Alice",
+  "age": 30,
+  "skills": ["Python", "SQL"],
+  "active": true
 }
 ```
 
-JSON objects use:
+The equivalent Python object is:
 
-- Double quotes around keys and strings
-- Commas between items
-- Curly braces for objects
-- Square brackets for arrays
-- No trailing commas
-
-Invalid JSON:
-
-```json
+```python
 {
-  "name": "Ada",
+    "name": "Alice",
+    "age": 30,
+    "skills": ["Python", "SQL"],
+    "active": True
 }
 ```
 
-The trailing comma makes it invalid.
+Important differences:
+
+- JSON uses lowercase `true`, `false`, and `null`.
+- JSON requires double quotes around strings and keys.
+- JSON does not support comments.
+- JSON keys must be strings.
 
 ---
 
@@ -55,334 +54,440 @@ The trailing comma makes it invalid.
 import json
 ```
 
-The two most important pairs of functions are:
+Python provides two main pairs of functions:
 
-```python
-json.load()   # Read JSON from a file
-json.dump()   # Write JSON to a file
-
-json.loads()  # Read JSON from a string
-json.dumps()  # Convert Python data to a JSON string
-```
-
-The `s` means “string.”
+- `json.load()` and `json.dump()` work with files.
+- `json.loads()` and `json.dumps()` work with strings.
 
 ---
 
-## 3. Reading a JSON File
+## 3. Read a JSON File
 
 Suppose `user.json` contains:
 
 ```json
 {
-  "name": "Ada",
-  "age": 36,
-  "skills": ["Python", "Mathematics"]
+  "name": "Alice",
+  "age": 30
 }
 ```
 
-Read it with `json.load()`:
+Read it with:
 
 ```python
 import json
 
 with open("user.json", "r", encoding="utf-8") as file:
-    user = json.load(file)
+    data = json.load(file)
 
-print(user)
-print(user["name"])
-print(user["skills"])
+print(data)
+print(data["name"])
 ```
 
 Output:
 
 ```text
-{'name': 'Ada', 'age': 36, 'skills': ['Python', 'Mathematics']}
-Ada
-['Python', 'Mathematics']
+{'name': 'Alice', 'age': 30}
+Alice
 ```
 
 ### Why use `with open()`?
 
-The `with` statement automatically closes the file, even if an error occurs.
-
-The following is generally preferred:
-
-```python
-with open("data.json", encoding="utf-8") as file:
-    data = json.load(file)
-```
-
-Rather than:
-
-```python
-file = open("data.json")
-data = json.load(file)
-file.close()
-```
+It automatically closes the file, even if an error occurs.
 
 ---
 
-## 4. Accessing JSON Data
-
-After loading JSON, you work with normal Python dictionaries and lists.
-
-```python
-data = {
-    "user": {
-        "name": "Ada",
-        "roles": ["admin", "editor"]
-    }
-}
-
-print(data["user"]["name"])
-print(data["user"]["roles"][0])
-```
-
-Output:
-
-```text
-Ada
-admin
-```
-
-### Avoiding missing-key errors
-
-Using square brackets raises `KeyError` if the key does not exist:
-
-```python
-name = data["username"]  # KeyError
-```
-
-Use `.get()` when a key may be missing:
-
-```python
-name = data.get("username")
-print(name)  # None
-```
-
-You can provide a default:
-
-```python
-name = data.get("username", "Unknown")
-```
-
-For nested data:
-
-```python
-user = data.get("user", {})
-name = user.get("name", "Unknown")
-```
-
----
-
-## 5. Reading Arrays of Objects
-
-A common JSON structure is a list of records:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Ada",
-    "active": true
-  },
-  {
-    "id": 2,
-    "name": "Grace",
-    "active": false
-  }
-]
-```
-
-Python:
-
-```python
-import json
-
-with open("users.json", encoding="utf-8") as file:
-    users = json.load(file)
-
-for user in users:
-    print(user["id"], user["name"])
-```
-
-Filter records:
-
-```python
-active_users = [
-    user for user in users
-    if user.get("active") is True
-]
-
-print(active_users)
-```
-
-Find one record:
-
-```python
-user = next(
-    (user for user in users if user.get("id") == 2),
-    None
-)
-
-print(user)
-```
-
----
-
-## 6. Writing JSON to a File
-
-Use `json.dump()` to write Python data to a file:
+## 4. Write Data to a JSON File
 
 ```python
 import json
 
 user = {
-    "name": "Ada",
-    "age": 36,
-    "skills": ["Python", "Mathematics"]
+    "name": "Alice",
+    "age": 30
 }
 
 with open("user.json", "w", encoding="utf-8") as file:
     json.dump(user, file)
 ```
 
-This produces compact JSON:
+The file will contain:
 
 ```json
-{"name": "Ada", "age": 36, "skills": ["Python", "Mathematics"]}
+{"name": "Alice", "age": 30}
 ```
 
-### Pretty-printing JSON
-
-Use `indent` to make the file easier to read:
+### Write Readable, Pretty-Printed JSON
 
 ```python
 with open("user.json", "w", encoding="utf-8") as file:
-    json.dump(user, file, indent=2)
+    json.dump(user, file, indent=4)
 ```
 
 Output:
 
 ```json
 {
-  "name": "Ada",
-  "age": 36,
-  "skills": [
-    "Python",
-    "Mathematics"
-  ]
+    "name": "Alice",
+    "age": 30
 }
 ```
 
-### Sorting keys
+Useful options:
 
 ```python
-with open("user.json", "w", encoding="utf-8") as file:
-    json.dump(user, file, indent=2, sort_keys=True)
+json.dump(
+    user,
+    file,
+    indent=4,
+    sort_keys=True
+)
 ```
 
-This is useful when comparing files in version control.
-
-### Adding a final newline
-
-```python
-with open("user.json", "w", encoding="utf-8") as file:
-    json.dump(user, file, indent=2)
-    file.write("\n")
-```
+- `indent=4`: formats the JSON neatly.
+- `sort_keys=True`: sorts dictionary keys alphabetically.
 
 ---
 
-## 7. Converting Between JSON and Strings
+## 5. Convert Between JSON and Python Strings
 
-Use `json.dumps()` to convert Python data into a JSON string:
+### Python Object to JSON String
 
 ```python
-import json
+data = {"name": "Alice", "age": 30}
 
-data = {
-    "name": "Ada",
-    "age": 36
-}
+text = json.dumps(data)
 
-json_text = json.dumps(data, indent=2)
-print(json_text)
+print(text)
 ```
 
-Use `json.loads()` to parse a JSON string:
+Output:
+
+```text
+{"name": "Alice", "age": 30}
+```
+
+### JSON String to Python Object
 
 ```python
-json_text = '{"name": "Ada", "age": 36}'
+text = '{"name": "Alice", "age": 30}'
 
-data = json.loads(json_text)
+data = json.loads(text)
 
 print(data["name"])
 ```
 
-The difference is:
+Use:
+
+- `dump` / `load` for files.
+- `dumps` / `loads` for strings.
+
+---
+
+## 6. Access Nested Data
+
+Example:
+
+```json
+{
+  "user": {
+    "name": "Alice",
+    "contact": {
+      "email": "alice@example.com"
+    }
+  }
+}
+```
+
+Python:
 
 ```python
-json.load(file)       # File → Python object
-json.loads(string)    # String → Python object
+email = data["user"]["contact"]["email"]
+print(email)
+```
 
-json.dump(data, file) # Python object → File
-json.dumps(data)      # Python object → String
+### Safer Access with `.get()`
+
+```python
+email = data.get("user", {}).get("contact", {}).get("email")
+```
+
+This returns `None` instead of raising an error when a key is missing.
+
+You can provide a default value:
+
+```python
+name = data.get("name", "Unknown")
 ```
 
 ---
 
-## 8. Handling JSON Errors
+## 7. Work with JSON Arrays
 
-Malformed JSON raises `json.JSONDecodeError`:
+Example:
+
+```json
+{
+  "users": [
+    {"name": "Alice", "age": 30},
+    {"name": "Bob", "age": 25}
+  ]
+}
+```
+
+Loop through the array:
+
+```python
+for user in data["users"]:
+    print(user["name"])
+```
+
+Add an item:
+
+```python
+data["users"].append({
+    "name": "Charlie",
+    "age": 28
+})
+```
+
+Remove an item:
+
+```python
+data["users"].pop(0)
+```
+
+Find a matching item:
+
+```python
+user = next(
+    (user for user in data["users"] if user["name"] == "Bob"),
+    None
+)
+```
+
+---
+
+## 8. Update JSON Data
+
+Read, modify, and write the file:
 
 ```python
 import json
 
+with open("user.json", encoding="utf-8") as file:
+    data = json.load(file)
+
+data["age"] = 31
+data["city"] = "London"
+
+with open("user.json", "w", encoding="utf-8") as file:
+    json.dump(data, file, indent=4)
+```
+
+JSON files do not update automatically when you modify the Python object. You must write the updated object back to the file.
+
+---
+
+## 9. Create a JSON File if It Does Not Exist
+
+```python
+from pathlib import Path
+import json
+
+path = Path("settings.json")
+
+if not path.exists():
+    path.write_text(
+        json.dumps({"theme": "dark"}, indent=4),
+        encoding="utf-8"
+    )
+```
+
+For most applications, a normal `open()` call is simpler:
+
+```python
+try:
+    with open("settings.json", encoding="utf-8") as file:
+        settings = json.load(file)
+except FileNotFoundError:
+    settings = {"theme": "light"}
+```
+
+---
+
+## 10. Handle Common Errors
+
+### File Does Not Exist
+
+```python
 try:
     with open("data.json", encoding="utf-8") as file:
         data = json.load(file)
-
 except FileNotFoundError:
-    print("The file does not exist.")
-
-except json.JSONDecodeError as error:
-    print(f"Invalid JSON: {error}")
-
-except OSError as error:
-    print(f"File error: {error}")
+    print("The file was not found.")
 ```
 
-A reusable function:
+### Invalid JSON
+
+```python
+try:
+    with open("data.json", encoding="utf-8") as file:
+        data = json.load(file)
+except json.JSONDecodeError:
+    print("The file contains invalid JSON.")
+```
+
+### Handle Both Errors
+
+```python
+try:
+    with open("data.json", encoding="utf-8") as file:
+        data = json.load(file)
+except FileNotFoundError:
+    print("File not found.")
+except json.JSONDecodeError:
+    print("Invalid JSON.")
+```
+
+Other possible errors include:
+
+- `PermissionError`: insufficient file permissions.
+- `TypeError`: trying to serialize an unsupported Python object.
+- `KeyError`: accessing a missing dictionary key.
+- `IndexError`: accessing an invalid list position.
+
+---
+
+## 11. Check Whether JSON Data Is Valid
 
 ```python
 import json
-from pathlib import Path
-from typing import Any
 
-def read_json(path: str | Path) -> Any:
+def is_valid_json(path):
     try:
         with open(path, encoding="utf-8") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        raise RuntimeError(f"JSON file not found: {path}")
-    except json.JSONDecodeError as error:
-        raise RuntimeError(
-            f"Invalid JSON in {path}, line {error.lineno}, "
-            f"column {error.colno}"
-        ) from error
+            json.load(file)
+        return True
+    except (FileNotFoundError, json.JSONDecodeError):
+        return False
+```
+
+Usage:
+
+```python
+print(is_valid_json("data.json"))
+```
+
+For a JSON string:
+
+```python
+def is_valid_json_text(text):
+    try:
+        json.loads(text)
+        return True
+    except json.JSONDecodeError:
+        return False
 ```
 
 ---
 
-## 9. Using `pathlib` for File Paths
+## 12. Validate Required Fields
 
-`pathlib` is often clearer than manually building paths.
+The JSON syntax may be valid but the data may still be wrong.
 
 ```python
+required = ["name", "email"]
+
+for field in required:
+    if field not in data:
+        raise ValueError(f"Missing field: {field}")
+```
+
+Check value types:
+
+```python
+if not isinstance(data.get("age"), int):
+    raise ValueError("Age must be an integer.")
+```
+
+For larger applications, consider a validation library such as Pydantic or `jsonschema`.
+
+---
+
+## 13. Handle Non-Serializable Python Objects
+
+Some Python objects cannot be directly converted to JSON:
+
+```python
+from datetime import datetime
 import json
+
+data = {"created": datetime.now()}
+
+json.dumps(data)  # TypeError
+```
+
+Convert the value first:
+
+```python
+data["created"] = data["created"].isoformat()
+
+text = json.dumps(data)
+```
+
+Common conversions:
+
+```python
+from datetime import date
+
+data = {
+    "date": date.today().isoformat(),
+    "tags": list({"python", "json"})
+}
+```
+
+JSON can directly represent:
+
+- Dictionaries
+- Lists
+- Strings
+- Integers
+- Floats
+- Booleans
+- `None`
+
+It cannot directly represent:
+
+- Sets
+- Dates
+- Datetimes
+- Custom classes
+- File objects
+- Database connections
+
+---
+
+## 14. Store Unicode Correctly
+
+Use UTF-8 when reading and writing:
+
+```python
+with open("names.json", "w", encoding="utf-8") as file:
+    json.dump({"name": "José"}, file, ensure_ascii=False, indent=4)
+```
+
+Without `ensure_ascii=False`, non-ASCII characters may be written as escaped Unicode sequences.
+
+---
+
+## 15. Use `pathlib` for File Paths
+
+`pathlib` makes file paths easier to manage:
+
+```python
 from pathlib import Path
+import json
 
 path = Path("data") / "users.json"
 
@@ -390,310 +495,97 @@ with path.open(encoding="utf-8") as file:
     users = json.load(file)
 ```
 
-Writing:
+Write JSON:
 
 ```python
-output_path = Path("output") / "result.json"
-output_path.parent.mkdir(parents=True, exist_ok=True)
-
-with output_path.open("w", encoding="utf-8") as file:
-    json.dump(users, file, indent=2)
+path.write_text(
+    json.dumps(users, indent=4),
+    encoding="utf-8"
+)
 ```
 
-This creates the parent directory if it does not already exist.
+Check for existence:
+
+```python
+if path.exists():
+    print("File exists")
+```
 
 ---
 
-## 10. Updating JSON Data
-
-Loading, modifying, and saving is the usual workflow:
+## 16. Build Reusable JSON Functions
 
 ```python
 import json
 
-with open("settings.json", encoding="utf-8") as file:
-    settings = json.load(file)
+def read_json(path):
+    with open(path, encoding="utf-8") as file:
+        return json.load(file)
 
-settings["theme"] = "dark"
-settings["notifications"] = True
 
-with open("settings.json", "w", encoding="utf-8") as file:
-    json.dump(settings, file, indent=2)
+def write_json(path, data):
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
 ```
 
-### Updating a nested value
+Usage:
 
 ```python
-settings.setdefault("display", {})
-settings["display"]["font_size"] = 14
+data = read_json("users.json")
+data["count"] = len(data["users"])
+write_json("users.json", data)
 ```
 
-`setdefault()` creates the nested dictionary if it does not exist.
-
-### Adding to a list
+A version with error handling:
 
 ```python
-settings.setdefault("recent_files", [])
-settings["recent_files"].append("report.txt")
+def read_json(path, default=None):
+    try:
+        with open(path, encoding="utf-8") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default
 ```
-
-### Removing a key
-
-```python
-settings.pop("temporary_value", None)
-```
-
-The `None` prevents an error if the key is missing.
 
 ---
 
-## 11. Creating a Reusable JSON Repository
+## 17. Safely Update a JSON File
 
-For repeated file operations, wrap them in functions:
+If a program stops while writing, the file could become incomplete. A safer approach is to write a temporary file first and then replace the original.
 
 ```python
 import json
 from pathlib import Path
-from typing import Any
 
-def load_json(path: str | Path, default: Any = None) -> Any:
+def safe_write_json(path, data):
     path = Path(path)
+    temp_path = path.with_suffix(".tmp")
 
-    if not path.exists():
-        return default
+    temp_path.write_text(
+        json.dumps(data, indent=4),
+        encoding="utf-8"
+    )
 
-    with path.open(encoding="utf-8") as file:
-        return json.load(file)
-
-
-def save_json(path: str | Path, data: Any) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    with path.open("w", encoding="utf-8") as file:
-        json.dump(data, file, indent=2, ensure_ascii=False)
-        file.write("\n")
-
-
-data = load_json("data.json", default={})
-data["updated"] = True
-save_json("data.json", data)
+    temp_path.replace(path)
 ```
+
+Usage:
+
+```python
+safe_write_json("settings.json", {"theme": "dark"})
+```
+
+This is useful for important configuration or data files.
 
 ---
 
-## 12. Unicode and Non-ASCII Text
+## 18. JSON Lines / NDJSON Files
 
-By default, `json.dump()` may escape non-ASCII characters:
-
-```python
-data = {"city": "München", "greeting": "こんにちは"}
-
-with open("data.json", "w", encoding="utf-8") as file:
-    json.dump(data, file, indent=2)
-```
-
-To preserve readable Unicode characters:
-
-```python
-with open("data.json", "w", encoding="utf-8") as file:
-    json.dump(data, file, indent=2, ensure_ascii=False)
-```
-
-Use UTF-8 consistently when opening files:
-
-```python
-open("data.json", encoding="utf-8")
-```
-
----
-
-## 13. JSON Type Limitations
-
-JSON does not directly support every Python type.
-
-### Supported naturally
-
-```python
-data = {
-    "text": "hello",
-    "number": 42,
-    "decimal": 3.14,
-    "enabled": True,
-    "missing": None,
-    "items": [1, 2, 3],
-    "nested": {"key": "value"}
-}
-```
-
-### Unsupported by default
-
-These cannot be serialized directly:
-
-- `datetime`
-- `date`
-- `set`
-- `bytes`
-- Custom classes
-- `Decimal`
-
-Example problem:
-
-```python
-import json
-from datetime import datetime
-
-data = {"created_at": datetime.now()}
-
-json.dumps(data)  # TypeError
-```
-
-### Converting a datetime
-
-```python
-from datetime import datetime
-import json
-
-data = {
-    "created_at": datetime.now().isoformat()
-}
-
-print(json.dumps(data))
-```
-
-### Converting a set
-
-```python
-data = {
-    "tags": list({"python", "json", "files"})
-}
-
-print(json.dumps(data))
-```
-
-### Custom serialization with `default`
-
-```python
-import json
-from datetime import datetime
-
-def serialize(value):
-    if isinstance(value, datetime):
-        return value.isoformat()
-
-    raise TypeError(f"Unsupported type: {type(value).__name__}")
-
-data = {"created_at": datetime.now()}
-
-text = json.dumps(data, default=serialize)
-print(text)
-```
-
----
-
-## 14. Preserving Large or Precise Numbers
-
-JSON numbers are normally converted to Python `int` or `float`.
-
-For precise decimal values, use `Decimal`:
-
-```python
-import json
-from decimal import Decimal
-
-json_text = '{"price": 19.99}'
-
-data = json.loads(
-    json_text,
-    parse_float=Decimal
-)
-
-print(data["price"])
-print(type(data["price"]))
-```
-
-For unusual or invalid numeric constants, you can reject them:
-
-```python
-def reject_invalid_number(value):
-    raise ValueError(f"Invalid number: {value}")
-
-data = json.loads(
-    json_text,
-    parse_constant=reject_invalid_number
-)
-```
-
----
-
-## 15. Validating JSON Structure
-
-Parsing confirms that JSON is syntactically valid. It does not confirm that it has the expected structure.
-
-For example, this is valid JSON:
+A regular JSON file usually contains one complete value. A JSON Lines file stores one JSON object per line:
 
 ```json
-{
-  "name": 123
-}
-```
-
-But your application may require `name` to be a string.
-
-Basic manual validation:
-
-```python
-def validate_user(user: dict) -> None:
-    if not isinstance(user, dict):
-        raise ValueError("User must be an object.")
-
-    if not isinstance(user.get("name"), str):
-        raise ValueError("User name must be a string.")
-
-    if not isinstance(user.get("age"), int):
-        raise ValueError("User age must be an integer.")
-```
-
-For larger applications, use a JSON Schema validator such as `jsonschema`:
-
-```bash
-python -m pip install jsonschema
-```
-
-Example schema:
-
-```python
-schema = {
-    "type": "object",
-    "required": ["name", "age"],
-    "properties": {
-        "name": {"type": "string"},
-        "age": {"type": "integer", "minimum": 0}
-    },
-    "additionalProperties": False
-}
-```
-
-Validation:
-
-```python
-from jsonschema import validate
-
-validate(instance=user, schema=schema)
-```
-
----
-
-## 16. Working with JSON Lines
-
-A regular JSON file contains one complete JSON document.
-
-A JSON Lines file, often ending in `.jsonl`, contains one JSON value per line:
-
-```json
-{"id": 1, "name": "Ada"}
-{"id": 2, "name": "Grace"}
-{"id": 3, "name": "Linus"}
+{"id": 1, "name": "Alice"}
+{"id": 2, "name": "Bob"}
 ```
 
 Read it line by line:
@@ -702,368 +594,295 @@ Read it line by line:
 import json
 
 with open("users.jsonl", encoding="utf-8") as file:
-    for line_number, line in enumerate(file, start=1):
-        if not line.strip():
-            continue
-
-        try:
-            user = json.loads(line)
-            print(user["name"])
-        except json.JSONDecodeError as error:
-            print(f"Invalid JSON on line {line_number}: {error}")
+    for line in file:
+        user = json.loads(line)
+        print(user["name"])
 ```
 
 Write JSON Lines:
 
 ```python
-import json
-
-users = [
-    {"id": 1, "name": "Ada"},
-    {"id": 2, "name": "Grace"}
-]
-
 with open("users.jsonl", "w", encoding="utf-8") as file:
     for user in users:
         file.write(json.dumps(user) + "\n")
 ```
 
-JSON Lines is useful for large datasets because you can process one record at a time.
+JSON Lines is useful for:
+
+- Large datasets
+- Logs
+- Streaming data
+- Processing one record at a time
 
 ---
 
-## 17. Handling Large JSON Files
+## 19. Large JSON Files
 
-`json.load()` reads the complete document into memory:
+`json.load()` reads the entire file into memory:
 
 ```python
 data = json.load(file)
 ```
 
-This is convenient but may be unsuitable for very large files.
+For very large files:
 
-Prefer JSON Lines for streaming:
+- Prefer JSON Lines when possible.
+- Process records incrementally.
+- Use a streaming parser such as `ijson` for large standard JSON documents.
+- Avoid repeatedly loading and rewriting a huge file.
 
-```python
-with open("events.jsonl", encoding="utf-8") as file:
-    for line in file:
-        event = json.loads(line)
-        process(event)
-```
-
-For a large regular JSON array, consider a streaming parser such as `ijson`:
-
-```bash
-python -m pip install ijson
-```
-
-```python
-import ijson
-
-with open("large-data.json", "rb") as file:
-    for record in ijson.items(file, "item"):
-        process(record)
-```
-
-Streaming avoids loading the complete array into memory.
+A JSON array containing millions of objects is less convenient to stream than a JSON Lines file.
 
 ---
 
-## 18. Atomic File Writes
+## 20. Preserve Key Order and Formatting
 
-If a program is interrupted while writing, the JSON file could become incomplete. A safer approach is to write a temporary file and then replace the original:
-
-```python
-import json
-import os
-import tempfile
-from pathlib import Path
-from typing import Any
-
-def atomic_save_json(path: str | Path, data: Any) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
-        dir=path.parent,
-        delete=False
-    ) as temporary_file:
-        json.dump(data, temporary_file, indent=2)
-        temporary_file.write("\n")
-        temporary_path = temporary_file.name
-
-    os.replace(temporary_path, path)
-```
-
-`os.replace()` replaces the destination in a single operation on supported operating systems.
-
----
-
-## 19. Security Considerations
-
-JSON itself does not execute code, so it is safer to parse than Python-specific formats such as `pickle`.
-
-Still:
-
-- Do not assume JSON data is trustworthy.
-- Validate types and required fields.
-- Do not use `eval()` to parse JSON.
-- Avoid inserting unescaped JSON values into HTML or SQL.
-- Treat values from users and external APIs as untrusted.
-- Limit file size when processing uploaded files.
-- Be careful when converting JSON fields into file paths or shell commands.
-
-Use:
+Python dictionaries preserve insertion order.
 
 ```python
-data = json.loads(text)
-```
-
-Do not use:
-
-```python
-data = eval(text)
-```
-
----
-
-## 20. Common Mistakes
-
-### Using single quotes
-
-Invalid JSON:
-
-```python
-text = "{'name': 'Ada'}"
-json.loads(text)
-```
-
-JSON requires double quotes:
-
-```python
-text = '{"name": "Ada"}'
-data = json.loads(text)
-```
-
-### Confusing `dump` and `dumps`
-
-```python
-json.dump(data, file)   # Writes to a file
-json.dumps(data)        # Returns a string
-```
-
-### Confusing `load` and `loads`
-
-```python
-json.load(file)         # Reads from a file
-json.loads(text)        # Reads from a string
-```
-
-### Overwriting a file accidentally
-
-Opening with `"w"` replaces existing contents:
-
-```python
-open("data.json", "w")
-```
-
-Load the existing data first if you need to update it.
-
-### Expecting comments to work
-
-This is not valid JSON:
-
-```json
-{
-  "name": "Ada",
-  // This is a comment
-  "age": 36
+data = {
+    "zebra": 1,
+    "apple": 2
 }
 ```
 
-Use a separate documentation file or a format designed to support comments.
+To sort keys alphabetically when writing:
 
-### Assuming keys always exist
+```python
+json.dump(data, file, indent=4, sort_keys=True)
+```
+
+Compact output:
+
+```python
+json.dump(data, file, separators=(",", ":"))
+```
+
+---
+
+## 21. Compare JSON Data
+
+JSON formatting may differ even when the data is the same.
+
+```python
+import json
+
+first = '{"name": "Alice", "age": 30}'
+second = '{"age": 30, "name": "Alice"}'
+
+same = json.loads(first) == json.loads(second)
+print(same)
+```
+
+Output:
+
+```text
+True
+```
+
+Comparing parsed Python objects is better than comparing raw JSON strings.
+
+---
+
+## 22. Command-Line JSON Files
+
+A simple script can accept a file path:
+
+```python
+import sys
+import json
+
+path = sys.argv[1]
+
+with open(path, encoding="utf-8") as file:
+    data = json.load(file)
+
+print(data)
+```
+
+Run it:
+
+```bash
+python app.py users.json
+```
+
+For more advanced command-line tools, use `argparse`.
+
+---
+
+## 23. JSON Security Practices
+
+When working with JSON:
+
+- Use `json.load()` and `json.loads()` for untrusted JSON.
+- Do not use `eval()` to parse JSON.
+- Do not store passwords or secret keys in plain JSON files.
+- Validate data before using it.
+- Be cautious when JSON controls file paths, commands, database queries, or permissions.
+- Limit the size of JSON received from external sources.
+
+Avoid this:
+
+```python
+data = eval(user_input)
+```
+
+Use this instead:
+
+```python
+data = json.loads(user_input)
+```
+
+---
+
+## 24. Common Mistakes
+
+### Using Python syntax instead of JSON
+
+Invalid JSON:
+
+```json
+{'name': 'Alice', 'active': True}
+```
+
+Valid JSON:
+
+```json
+{"name": "Alice", "active": true}
+```
+
+### Forgetting to write changes
+
+```python
+data["age"] = 31
+```
+
+This changes only the in-memory object. Save it:
+
+```python
+with open("user.json", "w", encoding="utf-8") as file:
+    json.dump(data, file, indent=4)
+```
+
+### Accessing missing keys
+
+Risky:
+
+```python
+email = data["email"]
+```
+
+Safer:
+
+```python
+email = data.get("email")
+```
+
+### Opening without an encoding
 
 Prefer:
 
 ```python
-email = user.get("email")
+open("data.json", encoding="utf-8")
 ```
 
-when the field is optional.
+### Appending multiple complete JSON objects to one file
+
+This is invalid as a normal JSON document:
+
+```text
+{"id": 1}{"id": 2}
+```
+
+Use a JSON array:
+
+```json
+[
+  {"id": 1},
+  {"id": 2}
+]
+```
+
+Or use JSON Lines:
+
+```json
+{"id": 1}
+{"id": 2}
+```
 
 ---
 
-## 21. Complete Example: A JSON-Based Task Manager
+## 25. Complete Small Example
 
 `tasks.json`:
 
 ```json
-[
-  {
-    "id": 1,
-    "title": "Learn JSON",
-    "completed": false
-  }
-]
+{
+  "tasks": [
+    {"title": "Learn JSON", "done": false}
+  ]
+}
 ```
 
 Python program:
 
 ```python
 import json
-from pathlib import Path
 
-TASKS_FILE = Path("tasks.json")
+path = "tasks.json"
 
+with open(path, encoding="utf-8") as file:
+    data = json.load(file)
 
-def load_tasks() -> list[dict]:
-    if not TASKS_FILE.exists():
-        return []
+data["tasks"].append({
+    "title": "Practice Python",
+    "done": False
+})
 
-    try:
-        with TASKS_FILE.open(encoding="utf-8") as file:
-            tasks = json.load(file)
+for task in data["tasks"]:
+    print(task["title"])
 
-        if not isinstance(tasks, list):
-            raise ValueError("The JSON root must be a list.")
-
-        return tasks
-
-    except json.JSONDecodeError as error:
-        raise RuntimeError(f"Invalid JSON: {error}") from error
-
-
-def save_tasks(tasks: list[dict]) -> None:
-    with TASKS_FILE.open("w", encoding="utf-8") as file:
-        json.dump(tasks, file, indent=2)
-        file.write("\n")
-
-
-def add_task(title: str) -> dict:
-    tasks = load_tasks()
-
-    next_id = max(
-        (task.get("id", 0) for task in tasks),
-        default=0
-    ) + 1
-
-    task = {
-        "id": next_id,
-        "title": title,
-        "completed": False
-    }
-
-    tasks.append(task)
-    save_tasks(tasks)
-
-    return task
-
-
-def complete_task(task_id: int) -> bool:
-    tasks = load_tasks()
-
-    for task in tasks:
-        if task.get("id") == task_id:
-            task["completed"] = True
-            save_tasks(tasks)
-            return True
-
-    return False
-
-
-def list_tasks() -> None:
-    for task in load_tasks():
-        status = "done" if task["completed"] else "pending"
-        print(f'{task["id"]}: {task["title"]} [{status}]')
-
-
-add_task("Practice json.load and json.dump")
-complete_task(1)
-list_tasks()
+with open(path, "w", encoding="utf-8") as file:
+    json.dump(data, file, indent=4)
 ```
 
-This example demonstrates:
+This program:
 
-- Reading a JSON file
-- Handling a missing file
-- Validating the top-level type
-- Adding records
-- Updating records
-- Saving changes
-- Formatting output
+1. Opens a JSON file.
+2. Converts it to Python data.
+3. Adds a task.
+4. Reads values from the data.
+5. Saves the modified data.
 
 ---
 
-## 22. Recommended Workflow
+## 26. Recommended Workflow
 
-For most JSON file tasks:
+When working with a JSON file:
 
-1. Import `json`.
-2. Use UTF-8 encoding.
-3. Open files with `with`.
-4. Read using `json.load()`.
-5. Validate the loaded structure.
-6. Access values using dictionaries and lists.
-7. Modify the Python object.
-8. Save using `json.dump()`.
-9. Use `indent=2` for human-readable files.
-10. Handle `FileNotFoundError`, `JSONDecodeError`, and other file errors.
-11. Use JSON Lines or a streaming parser for large datasets.
-12. Use atomic writes when data must not be corrupted.
+1. Decide what structure the JSON should have.
+2. Read the file with `json.load()`.
+3. Handle missing files and invalid JSON.
+4. Validate required fields and value types.
+5. Access data using dictionaries and lists.
+6. Modify the Python object.
+7. Write it back with `json.dump()`.
+8. Use `indent=4` for human-readable files.
+9. Use UTF-8 encoding.
+10. Use JSON Lines or a streaming parser for large datasets.
+11. Avoid `eval()` and validate untrusted data.
+12. Use temporary-file replacement when safe updates matter.
 
-A typical implementation looks like this:
-
-```python
-import json
-from pathlib import Path
-
-path = Path("data.json")
-
-try:
-    with path.open(encoding="utf-8") as file:
-        data = json.load(file)
-
-    # Read or modify data here.
-    data["updated"] = True
-
-    with path.open("w", encoding="utf-8") as file:
-        json.dump(data, file, indent=2, ensure_ascii=False)
-        file.write("\n")
-
-except FileNotFoundError:
-    print(f"File not found: {path}")
-
-except json.JSONDecodeError as error:
-    print(f"Invalid JSON: {error}")
-```
-
-## Quick Reference
+The core pattern is:
 
 ```python
 import json
 
-# File → Python
 with open("data.json", encoding="utf-8") as file:
     data = json.load(file)
 
-# Python → File
+# Read or modify data here
+
 with open("data.json", "w", encoding="utf-8") as file:
-    json.dump(data, file, indent=2)
-
-# String → Python
-data = json.loads('{"key": "value"}')
-
-# Python → String
-text = json.dumps(data, indent=2)
-
-# Safe dictionary lookup
-value = data.get("key", "default")
-
-# JSON Lines
-for line in open("data.jsonl", encoding="utf-8"):
-    record = json.loads(line)
+    json.dump(data, file, indent=4)
 ```
